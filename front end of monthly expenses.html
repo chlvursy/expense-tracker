@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Expense Tracker</title>
+  <style>
+    body {
+      background-color: A33E3E;
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+
+    header {
+      background-color: maroon;
+      color: white;
+      padding: 20px;
+      text-align: center;
+      text-shadow: 2px 2px #555;
+    }
+
+    nav {
+      background-color: #A33E3E;
+      padding: 10px;
+      text-align: center;
+    }
+
+    nav a {
+      color: #BD7B7B;
+      text-decoration: none;
+      margin: 0 15px;
+      font-weight: bold;
+    }
+
+    nav a:hover {
+      text-decoration: underline;
+    }
+
+    section {
+      padding: 20px;
+    }
+
+    h2 {
+      color: #0A0000;
+    }
+
+    p {
+      color: #333;
+      line-height: 1.6;
+    }
+
+    button {
+      background-color: #32cd32; /* lime green */
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+      margin-top: 10px;
+    }
+    input[type="text"],
+    input[type="number"] {
+    width: 300px;      /* adjust width */
+    padding: 8px;      /* inner spacing */
+    font-size: 16px;   /* text size */
+    border-radius: 5px;/* optional rounded corners */
+  }
+    button:hover {
+      background-color: #228b22; /* dark green on hover */
+    }
+
+    footer {
+      background-color: #2f4f4f; /* dark slate gray */
+      color: white;
+      text-align: center;
+      padding: 15px;
+      position: fixed;
+      width: 100%;
+      bottom: 0;
+    }
+
+    img {
+      max-width: 100%;
+      height: auto;
+      display: block;
+      margin: 10px auto;
+      border-radius: 10px;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>Track your monthly expenses here</h1>
+  </header>
+
+  <nav>
+    
+
+  </nav>
+
+  <section>
+    <h2>Welcome,</h2>
+    <form action="/add" method="post">
+        <label>Expense Name:</label>
+        <input type="text" name="name" required><br><br>
+
+        <label>Amount:</label>
+        <input type="number" name="amount" required><br><br>
+
+        <button type="submit">Add Expense</button>
+    </form>
+
+    <h2>Total This Month: {{ total }}</h2>
+
+  </section>
+
+  <footer>
+    &copy; Try Saving, It Helps.
+  </footer>
+    <ul>
+        {% for e in expenses %}
+            <li>{{ e[0] }} - {{ e[1] }}</li>
+        {% endfor %}
+    </ul>
+</body>
+</html>

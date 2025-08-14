@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Expense Tracker</title>
+  <style>
+    body {
+      background-color: #A33E3E;
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding-bottom: 70px; /* space for footer */
+    }
+
+    header {
+      background-color: maroon;
+      color: white;
+      padding: 20px;
+      text-align: center;
+      text-shadow: 2px 2px #555;
+    }
+
+    section {
+      padding: 20px;
+    }
+
+    h2 {
+      color: #0A0000;
+    }
+
+    input[type="text"], input[type="number"], select {
+      width: 300px;
+      padding: 8px;
+      font-size: 16px;
+      border-radius: 5px;
+      margin-bottom: 10px;
+    }
+
+    button {
+      background-color: #32cd32;
+      color: white;
+      padding: 8px 15px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    button:hover {
+      background-color: #228b22;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 15px;
+      background-color: white;
+    }
+
+    th, td {
+      border: 1px solid #ddd;
+      padding: 10px;
+      text-align: center;
+    }
+
+    th {
+      background-color: #7b2929;
+      color: white;
+    }
+
+    footer {
+      background-color: #2f4f4f;
+      color: white;
+      text-align: center;
+      padding: 15px;
+      position: fixed;
+      width: 100%;
+      bottom: 0;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>Track Your Monthly Expenses</h1>
+  </header>
+
+  <section>
+    <h2>Add Expense</h2>
+    <form id="expenseForm">
+      <label>Month:</label><br>
+      <select id="month" required>
+        <option value="">--Select Month--</option>
+        <option>January</option>
+        <option>February</option>
+        <option>March</option>
+        <option>April</option>
+        <option>May</option>
+        <option>June</option>
+        <option>July</option>
+        <option>August</option>
+        <option>September</option>
+        <option>October</option>
+        <option>November</option>
+        <option>December</option>
+      </select><br>
+
+      <label>Expense Name:</label><br>
+      <input type="text" id="name" required><br>
+
+      <label>Amount:</label><br>
+      <input type="number" id="amount" required><br>
+
+      <button type="submit">Add Expense</button>
+    </form>
+
+    <h2>Total This Month: <span id="total">0</span></h2>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Month</th>
+          <th>Expense Name</th>
+          <th>Amount</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody id="expenseTable"></tbody>
+    </table>
+  </section>
+
+  <footer>
+    &copy; Try Saving, It Helps.
+  </footer>
+
+  <script>
+    const expenseForm = document.getElementById('expenseForm');
+    const expenseTable = document.getElementById('expenseTable');
+    const totalDisplay = document.getElementById('total');
+
+    function loadExpenses() {
+      const expenses = JSON.parse(localStorage.getItem('expenses')) || [];
+      expenseTable.innerHTML = '';
+      let total = 0;
+
+      expenses.forEach((exp, index) => {
+        total += exp.amount;
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${exp.month}</td>
+          <td>${exp.name}</td>
+          <td>${exp.amount}</td>
+          <td><button onclick="deleteExpense(${index})">Delete</button></td>
+        `;
+        expenseTable.appendChild(row);
+      });
+
+      totalDisplay.textContent = total;
+    }
+
+    function deleteExpense(index) {
+      const expenses = JSON.parse(localStorage.getItem('expenses')) || [];
+      expenses.splice(index, 1);
+      localStorage.setItem('expenses', JSON.stringify(expenses));
+      loadExpenses();
+    }
+
+    expenseForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+      const month = document.getElementById('month').value;
+      const name = document.getElementById('name').value;
+      const amount = parseFloat(document.getElementById('amount').value);
+
+      const expenses = JSON.parse(localStorage.getItem('expenses')) || [];
+      expenses.push({ month, name, amount });
+      localStorage.setItem('expenses', JSON.stringify(expenses));
+
+      expenseForm.reset();
+      loadExpenses();
+    });
+
+    loadExpenses();
+  </script>
+
+</body>
+</html>

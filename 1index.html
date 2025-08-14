@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Expense Tracker</title>
+  <style>
+    body {
+      background-color: #A33E3E; /* fixed missing # */
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+
+    header {
+      background-color: maroon;
+      color: white;
+      padding: 20px;
+      text-align: center;
+      text-shadow: 2px 2px #555;
+    }
+
+    nav {
+      background-color: #A33E3E;
+      padding: 10px;
+      text-align: center;
+    }
+
+    nav a {
+      color: #BD7B7B;
+      text-decoration: none;
+      margin: 0 15px;
+      font-weight: bold;
+    }
+
+    nav a:hover {
+      text-decoration: underline;
+    }
+
+    section {
+      padding: 20px;
+    }
+
+    h2 {
+      color: #0A0000;
+    }
+
+    p {
+      color: #333;
+      line-height: 1.6;
+    }
+
+    button {
+      background-color: #32cd32; /* lime green */
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+      margin-top: 10px;
+    }
+
+    input[type="text"],
+    input[type="number"] {
+      width: 300px;
+      padding: 8px;
+      font-size: 16px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+
+    button:hover {
+      background-color: #228b22; /* dark green */
+    }
+
+    footer {
+      background-color: #2f4f4f; /* dark slate gray */
+      color: white;
+      text-align: center;
+      padding: 15px;
+      position: fixed;
+      width: 100%;
+      bottom: 0;
+    }
+
+    img {
+      max-width: 100%;
+      height: auto;
+      display: block;
+      margin: 10px auto;
+      border-radius: 10px;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>Track your monthly expenses here</h1>
+  </header>
+
+  <section>
+    <h2>Welcome,</h2>
+    <!-- Removed backend action -->
+    <form>
+        <label>Expense Name:</label>
+        <input type="text" name="name" placeholder="e.g., Groceries" required><br><br>
+
+        <label>Amount:</label>
+        <input type="number" name="amount" placeholder="e.g., 150" required><br><br>
+
+        <button type="button" onclick="alert('Form submission requires a backend!')">Add Expense</button>
+    </form>
+
+    <!-- Static placeholder total -->
+    <h2>Total This Month: 0</h2>
+
+    <!-- Example static expenses list -->
+    <ul>
+        <li>Groceries - 150</li>
+        <li>Electricity Bill - 200</li>
+    </ul>
+  </section>
+
+  <footer>
+    &copy; Try Saving, It Helps.
+  </footer>
+
+</body>
+</html>
