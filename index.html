@@ -134,7 +134,7 @@
   </select>
   <button id="applyFilter">Apply Filter</button>
 
-  <h2>Total This Month: <span id="total">0</span></h2>
+  <h2>Total: <span id="total">0</span></h2>
 
   <table>
     <thead>
@@ -171,8 +171,10 @@ function renderTable(yearFilter = '', monthFilter = '') {
   const yearFilterNum = yearFilter ? parseInt(yearFilter) : '';
 
   expenses.forEach((exp, index) => {
-    if ((yearFilterNum === '' || exp.year === yearFilterNum) &&
-        (monthFilter === '' || exp.month === monthFilter)) {
+    const yearMatch = !yearFilterNum || exp.year === yearFilterNum;
+    const monthMatch = !monthFilter || exp.month === monthFilter;
+
+    if (yearMatch && monthMatch) {
       total += exp.amount;
       const row = document.createElement('tr');
       row.innerHTML = `
@@ -186,7 +188,16 @@ function renderTable(yearFilter = '', monthFilter = '') {
     }
   });
 
-  totalDisplay.textContent = total;
+  // Show total based on filter type
+  if (yearFilter && monthFilter) {
+    totalDisplay.textContent = `${total} (for ${monthFilter} ${yearFilter})`;
+  } else if (!yearFilter && monthFilter) {
+    totalDisplay.textContent = `${total} (for all years, ${monthFilter})`;
+  } else if (yearFilter && !monthFilter) {
+    totalDisplay.textContent = `${total} (for all months in ${yearFilter})`;
+  } else {
+    totalDisplay.textContent = total;
+  }
 }
 
 // Delete a record
