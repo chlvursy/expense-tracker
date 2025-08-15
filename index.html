@@ -7,7 +7,7 @@
       background-color: #A33E3E;
       font-family: Arial, sans-serif;
       margin: 0;
-      padding-bottom: 70px; /* space for footer */
+      padding-bottom: 100px; /* extra for footer */
     }
 
     header {
@@ -22,7 +22,12 @@
       padding: 20px;
     }
 
-    input[type="text"], input[type="number"], select {
+    label {
+      font-weight: bold;
+      color: #fffacd; /* light yellow for readability */
+    }
+
+    input, select {
       width: 200px;
       padding: 8px;
       font-size: 16px;
@@ -73,6 +78,17 @@
       width: 100%;
       bottom: 0;
     }
+
+    .confirmation {
+      font-size: 14px;
+      color: yellow;
+      font-style: italic;
+      margin-top: 5px;
+    }
+
+    .hidden {
+      display: none;
+    }
   </style>
 </head>
 <body>
@@ -84,54 +100,47 @@
 <section>
   <h2>Add Expense</h2>
   <form id="expenseForm">
-    <label>Year:</label><br>
-    <input type="number" id="year" placeholder="e.g., 2025" required><br>
+    <label>Select Date:</label><br>
+    <input type="date" id="date" required><br>
 
-    <label>Month:</label><br>
-    <select id="month" required>
-      <option value="">--Select Month--</option>
-      <option>January</option>
-      <option>February</option>
-      <option>March</option>
-      <option>April</option>
-      <option>May</option>
-      <option>June</option>
-      <option>July</option>
-      <option>August</option>
-      <option>September</option>
-      <option>October</option>
-      <option>November</option>
-      <option>December</option>
+    <label>Expense Type:</label><br>
+    <select id="name" required>
+      <option value="">--Select Type--</option>
+      <option>Petrol</option>
+      <option>Rent</option>
+      <option>Groceries</option>
+      <option>Electricity Bill</option>
+      <option>Internet</option>
+      <option>Entertainment</option>
+      <option>Other</option>
     </select><br>
-
-    <label>Expense Name:</label><br>
-    <input type="text" id="name" placeholder="e.g., Groceries" required><br>
 
     <label>Amount:</label><br>
     <input type="number" id="amount" placeholder="e.g., 150" required><br>
 
-    <button type="submit">Add Expense</button>
+    <button type="button" id="addBtn">Add Expense</button>
+    <button type="submit" id="confirmBtn" class="hidden">Confirm Save</button>
+    <div class="confirmation hidden" id="confirmMsg">
+      Please click "Confirm Save" to finalize your record.
+    </div>
   </form>
 
   <h2>Filter Expenses</h2>
-  <label>Year:</label>
-  <input type="number" id="filterYear" placeholder="e.g., 2025">
-  <label>Month:</label>
-  <select id="filterMonth">
-    <option value="">--All Months--</option>
-    <option>January</option>
-    <option>February</option>
-    <option>March</option>
-    <option>April</option>
-    <option>May</option>
-    <option>June</option>
-    <option>July</option>
-    <option>August</option>
-    <option>September</option>
-    <option>October</option>
-    <option>November</option>
-    <option>December</option>
+  <label>Month & Year:</label>
+  <input type="date" id="filterDate">
+  
+  <label>Expense Type:</label>
+  <select id="filterType">
+    <option value="">All Types</option>
+    <option>Petrol</option>
+    <option>Rent</option>
+    <option>Groceries</option>
+    <option>Electricity Bill</option>
+    <option>Internet</option>
+    <option>Entertainment</option>
+    <option>Other</option>
   </select>
+  
   <button id="applyFilter">Apply Filter</button>
 
   <h2>Total: <span id="total">0</span></h2>
@@ -139,9 +148,8 @@
   <table>
     <thead>
       <tr>
-        <th>Year</th>
-        <th>Month</th>
-        <th>Expense Name</th>
+        <th>Date</th>
+        <th>Expense Type</th>
         <th>Amount</th>
         <th>Action</th>
       </tr>
@@ -158,28 +166,30 @@
 const expenseForm = document.getElementById('expenseForm');
 const expenseTable = document.getElementById('expenseTable');
 const totalDisplay = document.getElementById('total');
-const filterYear = document.getElementById('filterYear');
-const filterMonth = document.getElementById('filterMonth');
+const filterDate = document.getElementById('filterDate');
+const filterType = document.getElementById('filterType');
 const applyFilter = document.getElementById('applyFilter');
+const addBtn = document.getElementById('addBtn');
+const confirmBtn = document.getElementById('confirmBtn');
+const confirmMsg = document.getElementById('confirmMsg');
 
 let expenses = JSON.parse(localStorage.getItem('expenses')) || [];
+let pendingExpense = null;
 
-// Render table with optional filters
-function renderTable(yearFilter = '', monthFilter = '') {
+// Render table
+function renderTable(dateFilter = '', typeFilter = '') {
   expenseTable.innerHTML = '';
   let total = 0;
-  const yearFilterNum = yearFilter ? parseInt(yearFilter) : '';
 
   expenses.forEach((exp, index) => {
-    const yearMatch = !yearFilterNum || exp.year === yearFilterNum;
-    const monthMatch = !monthFilter || exp.month === monthFilter;
+    const dateMatch = !dateFilter || exp.date === dateFilter;
+    const typeMatch = !typeFilter || exp.name === typeFilter;
 
-    if (yearMatch && monthMatch) {
+    if (dateMatch && typeMatch) {
       total += exp.amount;
       const row = document.createElement('tr');
       row.innerHTML = `
-        <td>${exp.year}</td>
-        <td>${exp.month}</td>
+        <td>${exp.date}</td>
         <td>${exp.name}</td>
         <td>${exp.amount}</td>
         <td><button onclick="deleteExpense(${index})">Delete</button></td>
@@ -188,49 +198,50 @@ function renderTable(yearFilter = '', monthFilter = '') {
     }
   });
 
-  // Show total based on filter type
-  if (yearFilter && monthFilter) {
-    totalDisplay.textContent = `${total} (for ${monthFilter} ${yearFilter})`;
-  } else if (!yearFilter && monthFilter) {
-    totalDisplay.textContent = `${total} (for all years, ${monthFilter})`;
-  } else if (yearFilter && !monthFilter) {
-    totalDisplay.textContent = `${total} (for all months in ${yearFilter})`;
-  } else {
-    totalDisplay.textContent = total;
-  }
+  totalDisplay.textContent = total;
 }
 
-// Delete a record
 function deleteExpense(index) {
   if (confirm("Are you sure you want to delete this expense?")) {
     expenses.splice(index, 1);
     localStorage.setItem('expenses', JSON.stringify(expenses));
-    renderTable(filterYear.value, filterMonth.value);
+    renderTable(filterDate.value, filterType.value);
   }
 }
 
-// Add a new expense
-expenseForm.addEventListener('submit', function(e) {
-  e.preventDefault();
-  const year = parseInt(document.getElementById('year').value);
-  const month = document.getElementById('month').value;
-  const name = document.getElementById('name').value.trim();
+// First click - prepare expense
+addBtn.addEventListener('click', function() {
+  const dateValue = document.getElementById('date').value;
+  const name = document.getElementById('name').value;
   const amount = parseFloat(document.getElementById('amount').value);
 
-  if (year && month && name && amount > 0) {
-    expenses.push({ year, month, name, amount });
-    localStorage.setItem('expenses', JSON.stringify(expenses));
-    expenseForm.reset();
-    renderTable(filterYear.value, filterMonth.value);
+  if (dateValue && name && amount > 0) {
+    pendingExpense = { date: dateValue, name, amount };
+    confirmBtn.classList.remove('hidden');
+    confirmMsg.classList.remove('hidden');
+  } else {
+    alert("Please fill in all fields correctly.");
   }
 });
 
-// Apply filter button
-applyFilter.addEventListener('click', function() {
-  renderTable(filterYear.value, filterMonth.value);
+// Second click - confirm save
+expenseForm.addEventListener('submit', function(e) {
+  e.preventDefault();
+  if (pendingExpense) {
+    expenses.push(pendingExpense);
+    localStorage.setItem('expenses', JSON.stringify(expenses));
+    pendingExpense = null;
+    expenseForm.reset();
+    confirmBtn.classList.add('hidden');
+    confirmMsg.classList.add('hidden');
+    renderTable(filterDate.value, filterType.value);
+  }
 });
 
-// Initial render
+applyFilter.addEventListener('click', function() {
+  renderTable(filterDate.value, filterType.value);
+});
+
 renderTable();
 </script>
 
