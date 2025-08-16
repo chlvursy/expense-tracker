@@ -89,6 +89,28 @@
     .hidden {
       display: none;
     }
+
+    .totals {
+      margin-top: 15px;
+      padding: 10px;
+      background: #fffacd;
+      border-radius: 8px;
+    }
+
+    .totals h2, .totals h3 {
+      margin: 5px 0;
+    }
+
+    #categoryTable th {
+      background-color: #555;
+      color: white;
+    }
+
+    #categoryTable tfoot th {
+      background-color: #7b2929;
+      color: white;
+      font-weight: bold;
+    }
   </style>
 </head>
 <body>
@@ -116,7 +138,8 @@
     </select><br>
 
     <label>Amount:</label><br>
-    <input type="number" id="amount" placeholder="e.g., 150" required><br>
+    <!-- ✅ allow floating decimals -->
+    <input type="number" id="amount" step="0.01" placeholder="e.g., 150.75" required><br>
 
     <button type="button" id="addBtn">Add Expense</button>
     <button type="submit" id="confirmBtn" class="hidden">Confirm Save</button>
@@ -143,7 +166,26 @@
   
   <button id="applyFilter">Apply Filter</button>
 
-  <h2>Total: <span id="total">0</span></h2>
+  <!-- ✅ totals block -->
+  <div class="totals">
+    <h2>Total: <span id="total">0</span></h2>
+    <h3>Breakdown by Category</h3>
+    <table id="categoryTable">
+      <thead>
+        <tr>
+          <th>Category</th>
+          <th>Sum</th>
+        </tr>
+      </thead>
+      <tbody id="categoryTotals"></tbody>
+      <tfoot>
+        <tr>
+          <th>Grand Total</th>
+          <th id="grandTotal">0</th>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
 
   <table>
     <thead>
@@ -172,14 +214,16 @@ const applyFilter = document.getElementById('applyFilter');
 const addBtn = document.getElementById('addBtn');
 const confirmBtn = document.getElementById('confirmBtn');
 const confirmMsg = document.getElementById('confirmMsg');
+const categoryTotalsDiv = document.getElementById('categoryTotals');
 
 let expenses = JSON.parse(localStorage.getItem('expenses')) || [];
 let pendingExpense = null;
 
-// Render table
+// Render table + totals
 function renderTable(dateFilter = '', typeFilter = '') {
   expenseTable.innerHTML = '';
   let total = 0;
+  let categoryTotals = {};
 
   expenses.forEach((exp, index) => {
     const dateMatch = !dateFilter || exp.date === dateFilter;
@@ -187,18 +231,38 @@ function renderTable(dateFilter = '', typeFilter = '') {
 
     if (dateMatch && typeMatch) {
       total += exp.amount;
+      categoryTotals[exp.name] = (categoryTotals[exp.name] || 0) + exp.amount;
+
       const row = document.createElement('tr');
       row.innerHTML = `
         <td>${exp.date}</td>
         <td>${exp.name}</td>
-        <td>${exp.amount}</td>
+        <td>${exp.amount.toFixed(2)}</td>
         <td><button onclick="deleteExpense(${index})">Delete</button></td>
       `;
       expenseTable.appendChild(row);
     }
   });
 
-  totalDisplay.textContent = total;
+  totalDisplay.textContent = total.toFixed(2);
+
+  // ✅ Render breakdown table
+  categoryTotalsDiv.innerHTML = '';
+  let grandTotal = 0;
+
+  if (Object.keys(categoryTotals).length === 0) {
+    categoryTotalsDiv.innerHTML = `<tr><td colspan="2">No expenses found</td></tr>`;
+  } else {
+    for (let [type, sum] of Object.entries(categoryTotals)) {
+      const row = document.createElement('tr');
+      row.innerHTML = `<td>${type}</td><td>${sum.toFixed(2)}</td>`;
+      categoryTotalsDiv.appendChild(row);
+      grandTotal += sum;
+    }
+  }
+
+  // ✅ update grand total cell
+  document.getElementById('grandTotal').textContent = grandTotal.toFixed(2);
 }
 
 function deleteExpense(index) {
